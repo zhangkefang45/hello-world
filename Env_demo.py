@@ -39,13 +39,13 @@ class Robot(object):
         done = False
         self.end_goal += action[0]
         # print "---frist---"
-        self.end_goal[0] = np.clip(np.random.normal(self.end_goal[0], var), 0.52, 0.92)
-        self.end_goal[1] = np.clip(np.random.normal(self.end_goal[0], var), -0.35, 0.35)
+        self.end_goal[0] = np.random.normal(self.end_goal[0], var)%0.4 + 0.52
+        self.end_goal[1] = np.random.normal(self.end_goal[0], var)%0.7 - 0.35
         # x = self.end_goal[0]
         # y = self.end_goal[1]
         x = self.end_goal[0]
         y = self.end_goal[1]
-        # print x, y
+        # print(x, y)
         dis = math.sqrt(math.pow(x - self.Box_position[0], 2)
                         + math.pow(y - self.Box_position[1], 2))
         if dis < 0.02:  # 阈值，可调

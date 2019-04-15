@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import torchvision.models as models
 import numpy as np
 import os
+import math
 import random
 import time
 
@@ -14,8 +15,8 @@ import time
 
 MAX_EPISODES = 10000
 MAX_EP_STEPS = 20
-LR_A = 0.001    # learning rate for actor
-LR_C = 0.002    # learning rate for critic
+LR_A = 0.0005    # learning rate for actor
+LR_C = 0.001    # learning rate for critic
 GAMMA = 0.9     # reward discount
 TAU = 0.01      # soft replacement
 MEMORY_CAPACITY = 5000
@@ -80,6 +81,7 @@ class DDPG(object):
 
     def choose_action(self, s):
         # print "****action from net****"
+        # if np.random.uniform() < EPSILON * (math.exp(self.memory_counter - 5000) if self.memory_counter <= 5000 else 1):
         joint_view, image_view = s
         image_view = image_view / (256 * 256)
         image_view = image_view.astype(np.float32)
@@ -93,6 +95,10 @@ class DDPG(object):
         joint_view = torch.from_numpy(np.array(joint_view).reshape(-1, 3)).cuda()
         action = self.Actor_eval.forward(image_view_rgb, image_view_dep, joint_view).detach()
         action = action.cpu().numpy()
+        # else:
+        #     # print "****action for rand****"
+        #     action = np.random.uniform(low=-0.1, high=0.1, size=3)
+        #     action = action[np.newaxis, :]
         return action
 
     def learn(self):
@@ -180,7 +186,7 @@ class DDPG(object):
                 target_param.data*(1.0 - tau) + param.data*tau
             )
     def save_model(self):
-        model_number = self.get_file_number("eval_dqn")
+        model_number = self.get_file_number("eval_ddpg")
         print("model_number:",model_number)
         torch.save(self.Actor_eval, "model/eval_ddpg/" + str(model_number) + ".pkl")
         torch.save(self.Critic_eval, "model/target_ddpg/" + str(model_number) + ".pkl")
